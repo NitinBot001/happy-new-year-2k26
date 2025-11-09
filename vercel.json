@@ -3,10 +3,8 @@
     { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } }
   ],
   "routes": [
-    // Serve static files (js/css/assets/images) directly
     { "src": "/(.*)\\.(js|css|map|json|png|jpg|jpeg|gif|svg|ico|webp|woff2?)$", "dest": "/$1.$2" },
 
-    // Let Vercel try static asset first; any other route -> index.html (SPA)
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
