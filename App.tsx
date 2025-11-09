@@ -1,11 +1,19 @@
-
 import React, { useState, useEffect } from 'react';
 import MovingButton from './components/MovingButton';
 import StaticButton from './components/StaticButton';
 
+const jokes = [
+  { title: "Congrats! 😜", message: "You're now the CEO of Forever Alone Inc." },
+  { title: "Excellent! 🛌", message: "Your bed now has 100% more space for activities." },
+  { title: "Success! 😻", message: "You've successfully subscribed to 'Single & Sassy' for another year. Your cat is thrilled!" },
+  { title: "Mission Accomplished! 📺", message: "Operation 'Avoid Sharing the Remote' is a go for 2026." },
+  { title: "Welcome to the Club! 🍿", message: "We have snacks, and you never have to share them." }
+];
+
 const App: React.FC = () => {
   const [isYesClicked, setIsYesClicked] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [selectedJoke, setSelectedJoke] = useState({ title: '', message: '' });
 
   useEffect(() => {
     // Trigger the fade-in animation on mount
@@ -13,6 +21,9 @@ const App: React.FC = () => {
   }, []);
 
   const handleYesClick = () => {
+    const randomIndex = Math.floor(Math.random() * jokes.length);
+    setSelectedJoke(jokes[randomIndex]);
+
     setShowContent(false); // Start fade-out
     setTimeout(() => {
       setIsYesClicked(true);
@@ -28,13 +39,10 @@ const App: React.FC = () => {
         {isYesClicked ? (
           <div className="space-y-4">
             <h1 className="text-4xl md:text-6xl font-bold text-rose-500">
-              Congrats! 😜
+              {selectedJoke.title}
             </h1>
             <p className="text-lg md:text-2xl">
-              You're now the CEO of Forever Alone Inc.
-            </p>
-            <p className="text-md md:text-xl">
-              Your cat is very happy to hear this news! 😻
+              {selectedJoke.message}
             </p>
           </div>
         ) : (
