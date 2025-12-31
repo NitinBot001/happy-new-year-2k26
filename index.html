@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2026: The Frozen New Year</title>
+    <title>2026: Destiny Toss</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&family=Unbounded:wght@400;900&display=swap" rel="stylesheet">
@@ -19,6 +19,11 @@
               jakarta: ['Plus Jakarta Sans', 'sans-serif'],
               unbounded: ['Unbounded', 'cursive'],
             },
+            animation: {
+              'spin-slow': 'spin 12s linear infinite',
+              'bounce-slow': 'bounce 3s infinite',
+              'pulse-fast': 'pulse 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            }
           },
         },
       }
@@ -35,17 +40,9 @@
 </script>
     <style>
       @keyframes floatDown {
-        0% {
-          transform: translateY(-10vh) rotate(0deg);
-          opacity: 0;
-        }
-        20% {
-          opacity: 0.8;
-        }
-        100% {
-          transform: translateY(110vh) rotate(360deg);
-          opacity: 0;
-        }
+        0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+        20% { opacity: 0.8; }
+        100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
       }
 
       .sparkle {
@@ -55,15 +52,23 @@
         animation-timing-function: linear;
         animation-iteration-count: infinite;
         user-select: none;
-        color: #7dd3fc; /* Sky 300 */
-        filter: drop-shadow(0 0 5px rgba(125, 211, 252, 0.5));
+        pointer-events: none;
       }
       
       body {
-        background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+        background: #020617;
         margin: 0;
         overflow: hidden;
         font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+
+      .toss-blur {
+        filter: blur(8px);
+        transform: scale(1.1);
+      }
+
+      .orb-inner-spin {
+        transition: transform 3s cubic-bezier(0.15, 0, 0.15, 1);
       }
     </style>
 </head>

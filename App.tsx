@@ -53,6 +53,7 @@ const contentMap = {
 const App: React.FC = () => {
   const [theme, setTheme] = useState<Theme>('none');
   const [isTossing, setIsTossing] = useState(false);
+  const [rotation, setRotation] = useState(0);
   const [isNoClicked, setIsNoClicked] = useState(false);
   const [isYesClicked, setIsYesClicked] = useState(false);
   const [isHacked, setIsHacked] = useState(false);
@@ -61,19 +62,24 @@ const App: React.FC = () => {
   const [isShaking, setIsShaking] = useState(false);
   const [showHint, setShowHint] = useState(false);
 
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   useEffect(() => {
     setShowContent(true);
   }, []);
 
   const handleToss = () => {
+    if (isTossing) return;
     setIsTossing(true);
+    
+    // Realistic spin: 5 to 8 full rotations plus random result
+    const extraDegrees = Math.random() > 0.5 ? 0 : 180; // 0 for Gold, 180 for Ice
+    const newRotation = rotation + (1440 + Math.random() * 720) + extraDegrees;
+    setRotation(newRotation);
+
     setTimeout(() => {
-      const result: Theme = Math.random() > 0.5 ? 'gold' : 'ice';
+      const result: Theme = Math.abs((newRotation % 360)) < 90 || Math.abs((newRotation % 360)) > 270 ? 'gold' : 'ice';
       setTheme(result);
       setIsTossing(false);
-    }, 2000);
+    }, 3200);
   };
 
   const triggerConfetti = (isBig: boolean) => {
@@ -115,26 +121,49 @@ const App: React.FC = () => {
 
   if (theme === 'none') {
     return (
-      <main className="flex flex-col items-center justify-center min-h-screen bg-[#020617] p-6 text-center">
-        <h1 className="text-4xl md:text-6xl font-syne font-black text-white mb-12 tracking-tighter uppercase">
-          Toss for your <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-cyan-400">2026 Destiny</span>
+      <main className="flex flex-col items-center justify-center min-h-screen bg-[#020617] p-6 text-center overflow-hidden">
+        <h1 className="text-4xl md:text-7xl font-syne font-black text-white mb-12 tracking-tighter uppercase leading-none">
+          Toss for your <br/> 
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-white to-cyan-400 animate-pulse">2026 Destiny</span>
         </h1>
         
         <div 
-          onClick={!isTossing ? handleToss : undefined}
-          className={`relative w-48 h-48 md:w-64 md:h-64 cursor-pointer group transition-all duration-500 ${isTossing ? 'animate-spin scale-110' : 'hover:scale-105'}`}
+          onClick={handleToss}
+          className={`relative w-64 h-64 md:w-80 md:h-80 cursor-pointer group select-none transition-all duration-500 ${isTossing ? 'scale-110' : 'hover:scale-105'}`}
         >
-          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-500 via-white to-cyan-400 blur-xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
-          <div className="relative w-full h-full rounded-full border-4 border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center overflow-hidden">
-            <div className={`absolute inset-0 bg-gradient-to-br from-amber-500/40 to-cyan-500/40 transition-opacity duration-1000 ${isTossing ? 'opacity-100' : 'opacity-40'}`}></div>
-            <span className="text-5xl md:text-7xl drop-shadow-2xl">
-              {isTossing ? '⏳' : '🔮'}
-            </span>
+          {/* Outer Ring Glow */}
+          <div className={`absolute -inset-4 rounded-full blur-2xl transition-opacity duration-1000 ${isTossing ? 'opacity-60 bg-white animate-pulse-fast' : 'opacity-20 bg-gradient-to-tr from-amber-500 to-cyan-400 group-hover:opacity-40'}`}></div>
+          
+          {/* The Orb */}
+          <div 
+            className="relative w-full h-full rounded-full border-8 border-white/5 bg-white/10 backdrop-blur-3xl flex items-center justify-center overflow-hidden orb-inner-spin shadow-2xl"
+            style={{ transform: `rotate(${rotation}deg)` }}
+          >
+            {/* Split Background Inside Orb */}
+            <div className="absolute inset-0 flex rotate-45">
+              <div className="flex-1 bg-gradient-to-br from-amber-500 to-amber-700 opacity-60"></div>
+              <div className="flex-1 bg-gradient-to-br from-cyan-500 to-sky-700 opacity-60"></div>
+            </div>
+            
+            {/* Symbols */}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center">
+              <span className="text-5xl md:text-6xl drop-shadow-lg">✨</span>
+              <span className="text-xs font-unbounded font-black text-white mt-2">AURA</span>
+            </div>
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center rotate-180">
+              <span className="text-5xl md:text-6xl drop-shadow-lg">❄️</span>
+              <span className="text-xs font-unbounded font-black text-white mt-2">FROST</span>
+            </div>
+
+            {/* Center Core */}
+            <div className="z-10 w-24 h-24 rounded-full bg-white/20 backdrop-blur-md border-2 border-white/30 flex items-center justify-center">
+               <span className="text-4xl animate-pulse">{isTossing ? '💎' : '🔮'}</span>
+            </div>
           </div>
         </div>
 
-        <p className="mt-12 font-jakarta text-slate-500 tracking-widest uppercase text-xs md:text-sm font-bold">
-          {isTossing ? "Consulting the universe..." : "Tap the orb to begin"}
+        <p className={`mt-12 font-jakarta tracking-[0.3em] uppercase text-xs md:text-sm font-black transition-all duration-500 ${isTossing ? 'text-white scale-125' : 'text-slate-500'}`}>
+          {isTossing ? "The cosmos is deciding..." : "Click the orb to toss"}
         </p>
       </main>
     );
@@ -148,16 +177,16 @@ const App: React.FC = () => {
       <main className="flex items-center justify-center min-h-screen text-slate-100 p-4 overflow-hidden relative">
         <div className={`text-center transition-opacity duration-700 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
           {isYesClicked ? (
-            <div className="space-y-12 max-w-5xl mx-auto px-4">
+            <div className="space-y-12 max-w-5xl mx-auto px-4 flex flex-col items-center">
               <h1 className={`text-6xl md:text-9xl font-syne font-black text-${activeContent.primary} drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] animate-bounce uppercase tracking-tighter`}>
                 {theme === 'gold' ? 'LEGENDARY 2026!' : 'COOL 2026!'} {theme === 'gold' ? '✨' : '❄️'}
               </h1>
               <p className="text-xl md:text-3xl text-white font-outfit font-light leading-relaxed max-w-3xl mx-auto italic opacity-90">
                 "{activeContent.celebration.top}"
               </p>
-              <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 py-8">
+              <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 py-8 w-full">
                 {activeContent.celebration.boxes.map((box, idx) => (
-                  <div key={idx} className={`flex-1 p-8 bg-black/40 border border-${activeContent.primary}/30 rounded-[2rem] backdrop-blur-2xl shadow-xl transition-all duration-500 flex flex-col items-center justify-center`}>
+                  <div key={idx} className={`flex-1 p-8 bg-black/40 border border-${activeContent.primary}/30 rounded-[2rem] backdrop-blur-2xl shadow-xl transition-all duration-500 flex flex-col items-center justify-center hover:scale-105 hover:bg-black/60`}>
                     <span className="block text-white text-5xl font-unbounded font-black mb-4">{box.value}</span>
                     <span className={`text-xs font-jakarta font-bold uppercase tracking-widest text-${activeContent.primary}`}>{box.label}</span>
                   </div>
@@ -166,6 +195,25 @@ const App: React.FC = () => {
               <p className={`text-xl md:text-2xl font-outfit font-semibold text-${activeContent.primary}`}>
                 {activeContent.celebration.bottom}
               </p>
+
+              {/* Instagram Follow Section */}
+              <div className="mt-16 pt-8 border-t border-white/10 w-full max-w-sm">
+                <p className="text-white/40 font-jakarta text-[10px] tracking-[0.4em] uppercase mb-4">Crafted by</p>
+                <a 
+                  href="https://www.instagram.com/nitin__bhujwa" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/30 transition-all group backdrop-blur-md`}
+                >
+                  <span className="text-2xl">📸</span>
+                  <div className="text-left">
+                    <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest leading-none">Follow me on</p>
+                    <p className={`text-lg font-syne font-black tracking-tight text-${activeContent.primary} group-hover:scale-105 transition-transform`}>
+                      @nitin__bhujwa
+                    </p>
+                  </div>
+                </a>
+              </div>
             </div>
           ) : isNoClicked ? (
             <div className="space-y-8">
@@ -214,8 +262,8 @@ const App: React.FC = () => {
               <span className="font-syne font-bold text-xl">?</span>
             </button>
             {showHint && (
-              <div className="bg-white/10 border border-white/10 px-6 py-3 rounded-2xl text-sm font-jakarta text-white backdrop-blur-xl animate-fade-in">
-                Tap the center icon 5 times to unlock.
+              <div className="bg-white/10 border border-white/10 px-6 py-3 rounded-2xl text-sm font-jakarta text-white backdrop-blur-xl animate-fade-in shadow-2xl">
+                Tap the center icon 5 times to bypass fate.
               </div>
             )}
           </div>
