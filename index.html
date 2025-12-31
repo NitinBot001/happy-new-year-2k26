@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2026: The New Year Awaits</title>
+    <title>2026: The Frozen New Year</title>
     <script src="https://cdn.tailwindcss.com"></script>
   <script type="importmap">
 {
@@ -17,29 +17,33 @@
 }
 </script>
     <style>
-      @keyframes floatUp {
+      @keyframes floatDown {
         0% {
-          transform: translateY(0) rotate(0deg);
+          transform: translateY(-10vh) rotate(0deg);
+          opacity: 0;
+        }
+        20% {
           opacity: 0.8;
         }
         100% {
-          transform: translateY(-110vh) rotate(360deg);
+          transform: translateY(110vh) rotate(360deg);
           opacity: 0;
         }
       }
 
       .sparkle {
         position: absolute;
-        bottom: -10vh;
-        animation-name: floatUp;
+        top: -10vh;
+        animation-name: floatDown;
         animation-timing-function: linear;
         animation-iteration-count: infinite;
         user-select: none;
-        color: #fbbf24; /* Amber 400 */
+        color: #7dd3fc; /* Sky 300 */
+        filter: drop-shadow(0 0 5px rgba(125, 211, 252, 0.5));
       }
       
       body {
-        background-color: #020617; /* Slate 950 */
+        background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
         margin: 0;
         overflow: hidden;
       }
