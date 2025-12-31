@@ -106,8 +106,9 @@ const useSoundEffects = () => {
 
     try {
       if (!musicBuffer.current) {
+        // Updated to music.ogg
         const response = await fetch('music.ogg');
-        if (!response.ok) throw new Error('Music file not found');
+        if (!response.ok) throw new Error('Music file (music.ogg) not found in root directory');
         const arrayBuffer = await response.arrayBuffer();
         musicBuffer.current = await ctx.decodeAudioData(arrayBuffer);
       }
@@ -228,7 +229,6 @@ const App: React.FC = () => {
       if (currentSnap !== lastSnap.current) {
         playSound('tick');
         lastSnap.current = currentSnap;
-        // Trigger a visual flutter on the indicator
         setIndicatorFlutter(true);
         setTimeout(() => setIndicatorFlutter(false), 60);
       }
@@ -318,20 +318,21 @@ const App: React.FC = () => {
             SPIN FOR YOUR
           </h1>
           
-          {/* Visual gradient bar from screenshot */}
           <div className="w-full max-w-xs h-6 sm:h-8 rounded-sm bg-gradient-to-r from-amber-400 via-white to-cyan-400 mb-8 shadow-[0_0_20px_rgba(255,255,255,0.1)]"></div>
           
-          <div className="relative inline-block mt-4">
-            {/* Improved Centering Container for Indicator */}
-            <div className="absolute -top-8 left-0 w-full flex justify-center z-50 pointer-events-none">
-                <div className={`transition-transform duration-75 ${indicatorFlutter ? '-rotate-12 translate-y-1' : 'rotate-0'}`}>
-                    <div className={`w-8 h-8 bg-white shadow-2xl rounded-sm rotate-45 border-r-4 border-b-4 border-slate-900 transition-all ${isTossing ? 'scale-110 brightness-110' : ''}`}></div>
+          {/* Centered wheel container */}
+          <div className="relative inline-block mt-4 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96">
+            
+            {/* Anchored Indicator: Using absolute centering relative to the wheel */}
+            <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+                <div className={`transition-transform duration-75 origin-top ${indicatorFlutter ? '-rotate-12 translate-y-1' : 'rotate-0'}`}>
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-white shadow-2xl rounded-sm rotate-45 border-r-4 border-b-4 border-slate-900 transition-all ${isTossing ? 'scale-110 brightness-110' : ''}`}></div>
                 </div>
             </div>
             
             <div 
               onClick={handleSpin}
-              className={`relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 cursor-pointer group select-none transition-transform duration-500 ${isTossing ? 'scale-100' : 'hover:scale-105 active:scale-95'}`}
+              className={`w-full h-full cursor-pointer group select-none transition-transform duration-500 ${isTossing ? 'scale-100' : 'hover:scale-105 active:scale-95'}`}
             >
               <div className={`absolute -inset-4 rounded-full blur-2xl transition-opacity duration-1000 ${isTossing ? 'opacity-40 bg-white animate-pulse' : 'opacity-10 bg-white'}`}></div>
               
@@ -357,6 +358,7 @@ const App: React.FC = () => {
                 ))}
               </div>
 
+              {/* Center Hub */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-slate-900 border-2 sm:border-4 border-white shadow-2xl flex items-center justify-center group-hover:bg-slate-800 transition-colors">
                  <div className="text-center">
                    <p className="text-[8px] sm:text-[10px] font-unbounded font-black text-white/50 tracking-widest uppercase">Tap to</p>
