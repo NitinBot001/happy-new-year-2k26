@@ -7,18 +7,18 @@ import BackgroundAnimation from './components/BackgroundAnimation';
 
 type Theme = 'gold' | 'ice' | 'none';
 
-// --- Procedural Sound Engine ---
+// --- Procedural & Music Engine ---
 const useSoundEffects = () => {
   const audioCtx = useRef<AudioContext | null>(null);
-  const musicBuffer = useRef<AudioBuffer | null>(null);
-  const musicSource = useRef<AudioBufferSourceNode | null>(null);
+  const musicAudio = useRef<HTMLAudioElement | null>(null);
   const [isMuted, setIsMuted] = useState(false);
 
   const initAudio = () => {
     if (!audioCtx.current) {
-      audioCtx.current = new (window.AudioContext || (window as any).webkitAudioContext)({
-        sampleRate: 44100,
-      });
+      audioCtx.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    if (audioCtx.current.state === 'suspended') {
+      audioCtx.current.resume();
     }
   };
 
@@ -99,47 +99,25 @@ const useSoundEffects = () => {
     }
   };
 
-  const playMusic = async () => {
-    if (isMuted || !audioCtx.current) return;
-    const ctx = audioCtx.current;
-    if (ctx.state === 'suspended') ctx.resume();
-
-    try {
-      if (!musicBuffer.current) {
-        // Updated to use music.ogg as requested
-        const response = await fetch('music.ogg');
-        if (!response.ok) throw new Error('Music file (music.ogg) not found. Ensure it is in the project root.');
-        const arrayBuffer = await response.arrayBuffer();
-        musicBuffer.current = await ctx.decodeAudioData(arrayBuffer);
-      }
-
-      if (musicSource.current) {
-        musicSource.current.stop();
-      }
-
-      const source = ctx.createBufferSource();
-      source.buffer = musicBuffer.current;
-      const gainNode = ctx.createGain();
-      gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
-      source.connect(gainNode);
-      gainNode.connect(ctx.destination);
-      source.loop = true; // Loops continuously until reload
-      source.start(0);
-      musicSource.current = source;
-    } catch (e) {
-      console.error("Music playback failed:", e);
+  const playMusic = () => {
+    if (isMuted) return;
+    if (!musicAudio.current) {
+      musicAudio.current = new Audio('music.ogg');
+      musicAudio.current.loop = true;
+      musicAudio.current.volume = 0.5;
     }
+    musicAudio.current.play().catch(e => console.error("Audio playback error:", e));
   };
 
   const stopMusic = () => {
-    if (musicSource.current) {
-      musicSource.current.stop();
-      musicSource.current = null;
+    if (musicAudio.current) {
+      musicAudio.current.pause();
     }
   };
 
   useEffect(() => {
     if (isMuted) stopMusic();
+    else if (musicAudio.current && !musicAudio.current.paused) playMusic();
   }, [isMuted]);
 
   return { initAudio, playSound, playMusic, stopMusic, isMuted, setIsMuted };
@@ -291,8 +269,8 @@ const App: React.FC = () => {
   };
 
   const toggleMute = () => {
-    initAudio();
     setIsMuted(!isMuted);
+    initAudio();
   };
 
   const handleAbsolutelyClick = () => {
@@ -300,7 +278,7 @@ const App: React.FC = () => {
     playSound('click');
     setIsYesClicked(true);
     triggerConfetti(true);
-    playMusic(); // Starts loopable music.ogg
+    playMusic();
   };
 
   if (theme === 'none') {
@@ -318,16 +296,14 @@ const App: React.FC = () => {
             SPIN FOR YOUR
           </h1>
           
-          {/* Gradient bar from screenshot */}
           <div className="w-full max-w-xs h-6 sm:h-8 rounded-sm bg-gradient-to-r from-amber-400 via-white to-cyan-400 mb-8 shadow-[0_0_20px_rgba(255,255,255,0.1)]"></div>
           
-          {/* Centered wheel container */}
           <div className="relative inline-block w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96">
             
-            {/* Anchored Indicator: Using absolute centering relative to the container */}
-            <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+            {/* Fixed Indicator Container: Ensured perfect centering with fixed width */}
+            <div className="absolute -top-12 left-0 w-full flex justify-center z-50 pointer-events-none">
                 <div className={`transition-transform duration-75 origin-bottom ${indicatorFlutter ? '-rotate-12 translate-y-1' : 'rotate-0'}`}>
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-white shadow-2xl rounded-sm rotate-45 border-r-4 border-b-4 border-slate-900 transition-all ${isTossing ? 'scale-110 brightness-110' : ''}`}></div>
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-white shadow-[0_0_15px_rgba(255,255,255,0.3)] rounded-sm rotate-45 border-r-4 border-b-4 border-slate-900 transition-all ${isTossing ? 'scale-110' : ''}`}></div>
                 </div>
             </div>
             
@@ -359,10 +335,9 @@ const App: React.FC = () => {
                 ))}
               </div>
 
-              {/* Center Hub */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-slate-900 border-2 sm:border-4 border-white shadow-2xl flex items-center justify-center group-hover:bg-slate-800 transition-colors">
                  <div className="text-center">
-                   <p className="text-[8px] sm:text-[10px] font-unbounded font-black text-white/50 tracking-widest uppercase leading-none mb-1">Tap to</p>
+                   <p className="text-[8px] sm:text-[10px] font-unbounded font-black text-white/50 tracking-widest uppercase mb-1">Tap to</p>
                    <p className="text-sm sm:text-base md:text-xl font-syne font-black text-white tracking-tighter uppercase leading-none">SPIN</p>
                  </div>
               </div>
