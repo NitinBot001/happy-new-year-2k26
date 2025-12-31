@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>A Very Important Question</title>
+    <title>2026: The New Year Awaits</title>
     <script src="https://cdn.tailwindcss.com"></script>
   <script type="importmap">
 {
@@ -17,26 +18,33 @@
     <style>
       @keyframes floatUp {
         0% {
-          transform: translateY(0);
-          opacity: 1;
+          transform: translateY(0) rotate(0deg);
+          opacity: 0.8;
         }
         100% {
-          transform: translateY(-110vh);
+          transform: translateY(-110vh) rotate(360deg);
           opacity: 0;
         }
       }
 
-      .heart {
+      .sparkle {
         position: absolute;
         bottom: -10vh;
         animation-name: floatUp;
         animation-timing-function: linear;
         animation-iteration-count: infinite;
         user-select: none;
+        color: #fbbf24; /* Amber 400 */
+      }
+      
+      body {
+        background-color: #020617; /* Slate 950 */
+        margin: 0;
+        overflow: hidden;
       }
     </style>
 </head>
-  <body class="bg-rose-50">
+  <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

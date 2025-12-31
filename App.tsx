@@ -4,29 +4,22 @@ import MovingButton from './components/MovingButton';
 import StaticButton from './components/StaticButton';
 import BackgroundAnimation from './components/BackgroundAnimation';
 
-const jokes = [
-  { title: "Congrats! 😜", message: "You're now the CEO of Forever Alone Inc." },
-  { title: "Excellent! 🛌", message: "Your bed now has 100% more space for activities." },
-  { title: "Success! 😻", message: "You've successfully subscribed to 'Single & Sassy' for another year. Your cat is thrilled!" },
-  { title: "Mission Accomplished! 📺", message: "Operation 'Avoid Sharing the Remote' is a go for 2026." },
-  { title: "Welcome to the Club! 🍿", message: "We have snacks, and you never have to share them." },
-  { title: "Lego Master! 🧱", message: "You can now buy the 7,000 piece Millennium Falcon and build it on the dining table for 3 months." },
-  { title: "Blanket Burrito! 💤", message: "Every square inch of the duvet is yours. You are the burrito now." },
-  { title: "Pizza Prophet! 🍕", message: "Large pizza for one? It's not a cry for help, it's a high-performance lifestyle choice." },
-  { title: "Gamer God! 🎮", message: "Zero interruptions during boss fights. Your K/D ratio is about to skyrocket." },
-  { title: "Plant Parent! 🌿", message: "Your plant collection is about to get a lot bigger. They listen better anyway." }
+const failJokes = [
+  { title: "Honesty is Key! 😴", message: "Fair enough. 2025 was a lot. We'll just nap until 2027." },
+  { title: "Understood! 📉", message: "Lowering expectations to 'Just Survived' mode. Coffee is on the left." },
+  { title: "Safe Choice! 🛋️", message: "A 'Mediocre but Comfy' 2026 it is. More time for Netflix!" },
+  { title: "Realist Alert! 🍕", message: "Who needs legendary when you have leftover pizza and a stable internet connection?" },
+  { title: "Zen Master! 🧘", message: "You've reached the level of 'Not Giving a Hoot'. 2026 is shaking in its boots." }
 ];
 
 const App: React.FC = () => {
-  const [isYesClicked, setIsYesClicked] = useState(false);
   const [isNoClicked, setIsNoClicked] = useState(false);
+  const [isYesClicked, setIsYesClicked] = useState(false);
   const [isHacked, setIsHacked] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [selectedJoke, setSelectedJoke] = useState({ title: '', message: '' });
   
-  // Heart hack state
-  const [heartClicks, setHeartClicks] = useState(0);
-  // Fix: Use ReturnType<typeof setTimeout> to avoid NodeJS namespace error in browser environments
+  const [starClicks, setStarClicks] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isShaking, setIsShaking] = useState(false);
 
@@ -37,24 +30,22 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const handleHeartClick = () => {
-    if (isHacked || isYesClicked || isNoClicked) return;
+  const handleStarClick = () => {
+    if (isHacked || isNoClicked || isYesClicked) return;
 
-    // Visual feedback
     setIsShaking(true);
     setTimeout(() => setIsShaking(false), 300);
 
-    const nextClicks = heartClicks + 1;
+    const nextClicks = starClicks + 1;
     
-    // Start timer on first click
     if (nextClicks === 1) {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
-        setHeartClicks(0);
+        setStarClicks(0);
       }, 10000);
     }
 
-    setHeartClicks(nextClicks);
+    setStarClicks(nextClicks);
 
     if (nextClicks >= 5) {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -62,72 +53,78 @@ const App: React.FC = () => {
     }
   };
 
-  const handleYesClick = () => {
-    const randomIndex = Math.floor(Math.random() * jokes.length);
-    setSelectedJoke(jokes[randomIndex]);
-
-    setShowContent(false);
-    setTimeout(() => {
-      setIsYesClicked(true);
-      setShowContent(true);
-    }, 500);
-  };
-  
   const handleNoClick = () => {
-    if (!isHacked) return;
+    const randomIndex = Math.floor(Math.random() * failJokes.length);
+    setSelectedJoke(failJokes[randomIndex]);
+
     setShowContent(false);
     setTimeout(() => {
       setIsNoClicked(true);
       setShowContent(true);
     }, 500);
   };
+  
+  const handleYesClick = () => {
+    setShowContent(false);
+    setTimeout(() => {
+      setIsYesClicked(true);
+      setShowContent(true);
+    }, 500);
+  };
 
-  const contentClasses = `transition-opacity duration-500 ease-in-out ${showContent ? 'opacity-100' : 'opacity-0'}`;
+  const contentClasses = `transition-opacity duration-700 ease-in-out ${showContent ? 'opacity-100' : 'opacity-0'}`;
 
   const renderContent = () => {
-    if (isNoClicked) {
+    if (isYesClicked) {
       return (
-        <div className="space-y-6">
-          <h1 className="text-4xl md:text-6xl font-bold text-emerald-500">
-            You Cracked the Code! 🥳
+        <div className="space-y-6 max-w-2xl mx-auto px-4">
+          <h1 className="text-5xl md:text-8xl font-black text-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)] animate-bounce">
+            HAPPY 2026! 🎇
           </h1>
-          <p className="text-lg md:text-2xl">
-            Looks like you're determined to find love in 2026. <br />
-            We respect the hustle! Your persistence is unmatched.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
-            <a href="https://tinder.com" target="_blank" rel="noopener noreferrer" className="px-8 py-3 w-48 text-center font-bold text-white bg-rose-500 rounded-lg shadow-md hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-opacity-75 transform hover:scale-105 transition-transform duration-200">
-              Tinder
-            </a>
-            <a href="https://bumble.com" target="_blank" rel="noopener noreferrer" className="px-8 py-3 w-48 text-center font-bold text-black bg-yellow-400 rounded-lg shadow-md hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-opacity-75 transform hover:scale-105 transition-transform duration-200">
-              Bumble
-            </a>
-            <a href="https://hinge.co" target="_blank" rel="noopener noreferrer" className="px-8 py-3 w-48 text-center font-bold text-white bg-gray-800 rounded-lg shadow-md hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-75 transform hover:scale-105 transition-transform duration-200">
-              Hinge
-            </a>
+          <div className="text-3xl md:text-4xl text-white font-bold tracking-widest uppercase">
+            Legendary Status: UNLOCKED
           </div>
-          <p className="text-md text-gray-500 pt-4">
-            Good luck out there, you persistent romantic! 😉
+          <p className="text-xl md:text-2xl text-slate-300 leading-relaxed">
+            The stars have aligned! This is officially going to be your year. 
+            May your 2026 be filled with unexpected joy, massive wins, 
+            and zero forgotten resolutions.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-6 pt-8">
+            <div className="p-4 bg-slate-900/50 border border-amber-500/30 rounded-2xl backdrop-blur-sm">
+              <span className="block text-amber-400 text-3xl font-bold">365</span>
+              <span className="text-xs text-slate-400 uppercase tracking-tighter">New Chances</span>
+            </div>
+            <div className="p-4 bg-slate-900/50 border border-amber-500/30 rounded-2xl backdrop-blur-sm">
+              <span className="block text-amber-400 text-3xl font-bold">12</span>
+              <span className="text-xs text-slate-400 uppercase tracking-tighter">New Chapters</span>
+            </div>
+            <div className="p-4 bg-slate-900/50 border border-amber-500/30 rounded-2xl backdrop-blur-sm">
+              <span className="block text-amber-400 text-3xl font-bold">∞</span>
+              <span className="text-xs text-slate-400 uppercase tracking-tighter">Possibilities</span>
+            </div>
+          </div>
+          <p className="text-slate-500 italic pt-8">
+            Go out there and shine! ✨
           </p>
         </div>
       );
     }
     
-    if (isYesClicked) {
+    if (isNoClicked) {
       return (
-        <div className="space-y-4">
-          <h1 className="text-4xl md:text-6xl font-bold text-rose-500">
+        <div className="space-y-6">
+          <h1 className="text-4xl md:text-6xl font-bold text-slate-400">
             {selectedJoke.title}
           </h1>
-          <p className="text-lg md:text-2xl">
+          <p className="text-lg md:text-2xl text-slate-300">
             {selectedJoke.message}
           </p>
           <div className="pt-8">
             <button 
-              onClick={() => { setShowContent(false); setTimeout(() => { setIsYesClicked(false); setShowContent(true); }, 500); }}
-              className="text-gray-400 hover:text-gray-600 underline text-sm"
+              onClick={() => { setShowContent(false); setTimeout(() => { setIsNoClicked(false); setShowContent(true); }, 500); }}
+              className="text-amber-500/50 hover:text-amber-500 underline text-sm transition-colors"
             >
-              Wait, I changed my mind...
+              Wait, I'm ready for greatness now...
             </button>
           </div>
         </div>
@@ -135,31 +132,41 @@ const App: React.FC = () => {
     }
 
     return (
-       <div className="space-y-8">
-          <h1 className="text-3xl md:text-5xl font-bold text-gray-800">
-            Would you like to remain single for 2026?
+       <div className="space-y-12">
+          <h1 className="text-4xl md:text-7xl font-bold text-white tracking-tight">
+            Are you ready to make <span className="text-amber-400">2026</span> <br/>
+            your most <span className="italic underline decoration-amber-500">legendary</span> year?
           </h1>
           
           <div 
-            onClick={handleHeartClick}
-            className={`text-6xl md:text-8xl cursor-pointer select-none transition-all duration-300 ${isShaking ? 'scale-125 rotate-12' : 'hover:scale-110'} ${isHacked ? 'animate-none' : 'animate-pulse'}`}
+            onClick={handleStarClick}
+            className={`relative inline-block text-7xl md:text-9xl cursor-pointer select-none transition-all duration-300 ${isShaking ? 'scale-125 rotate-45' : 'hover:scale-110'} ${isHacked ? 'animate-none' : 'animate-pulse'}`}
           >
-            {isHacked ? '❤️' : '❤️‍🩹'}
-            {!isHacked && heartClicks > 0 && (
-              <div className="text-sm font-bold text-rose-300 mt-2 animate-bounce">
-                {5 - heartClicks} more...
+            <span className="drop-shadow-[0_0_20px_rgba(251,191,36,0.8)]">
+                {isHacked ? '✨' : '⭐'}
+            </span>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-black text-slate-950 pointer-events-none">
+                26
+            </div>
+            {!isHacked && starClicks > 0 && (
+              <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-sm font-bold text-amber-500 whitespace-nowrap animate-bounce">
+                Click {5 - starClicks}x to ignite
               </div>
             )}
           </div>
 
-          <div className="flex justify-center items-center gap-4">
-            <StaticButton onClick={handleYesClick}>
-              YES
-            </StaticButton>
-            <MovingButton isHacked={isHacked} onClick={handleNoClick}>
-              NO
+          <div className="flex justify-center items-center gap-6">
+            <MovingButton isHacked={isHacked} onClick={handleYesClick}>
+              YES!
             </MovingButton>
+            <StaticButton onClick={handleNoClick}>
+              NOT REALLY
+            </StaticButton>
           </div>
+          
+          <p className="text-slate-500 text-sm">
+            {isHacked ? "The path to 2026 is now open." : "Legendary status requires catching the ambition."}
+          </p>
         </div>
     );
   }
@@ -167,7 +174,7 @@ const App: React.FC = () => {
   return (
     <>
       <BackgroundAnimation />
-      <main className="flex items-center justify-center min-h-screen text-gray-800 p-4 overflow-hidden">
+      <main className="flex items-center justify-center min-h-screen text-slate-100 p-4 overflow-hidden">
         <div className={`text-center ${contentClasses}`}>
           {renderContent()}
         </div>

@@ -10,7 +10,7 @@ const StaticButton: React.FC<StaticButtonProps> = ({ onClick, children }) => {
   return (
     <button
       onClick={onClick}
-      className="px-8 py-3 font-bold text-white bg-green-500 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transform hover:scale-105 transition-transform duration-200"
+      className="px-8 py-4 font-black text-slate-400 bg-slate-900 border-2 border-slate-800 rounded-xl shadow-[0_4px_0_0_#1e293b] hover:bg-slate-800 hover:text-slate-200 focus:outline-none transform active:translate-y-1 active:shadow-none transition-all duration-150"
     >
       {children}
     </button>

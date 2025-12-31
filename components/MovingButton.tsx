@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useCallback } from 'react';
 
 interface MovingButtonProps {
@@ -19,17 +20,16 @@ const MovingButton: React.FC<MovingButtonProps> = ({ children, isHacked, onClick
     const newX = Math.random() * (window.innerWidth - buttonWidth);
     const newY = Math.random() * (window.innerHeight - buttonHeight);
 
-    // Clamp values to ensure the button stays within the viewport
-    const clampedX = Math.max(0, Math.min(newX, window.innerWidth - buttonWidth));
-    const clampedY = Math.max(0, Math.min(newY, window.innerHeight - buttonHeight));
+    const clampedX = Math.max(20, Math.min(newX, window.innerWidth - buttonWidth - 20));
+    const clampedY = Math.max(20, Math.min(newY, window.innerHeight - buttonHeight - 20));
 
     setPosition({ top: clampedY, left: clampedX });
   }, [isHacked]);
 
-  const baseClasses = `px-6 py-3 font-bold text-white bg-red-500 rounded-lg shadow-md focus:outline-none transform transition-all duration-300 ease-in-out`;
+  const baseClasses = `px-10 py-4 font-black text-slate-950 bg-amber-400 rounded-xl shadow-[0_4px_0_0_#b45309] focus:outline-none transform transition-all duration-300 ease-in-out`;
   const finalClasses = `${baseClasses} ${isHacked 
-    ? 'animate-pulse ring-4 ring-green-400 cursor-pointer hover:bg-red-600 hover:scale-105' 
-    : 'hover:bg-red-600 hover:scale-105'}`;
+    ? 'animate-pulse ring-4 ring-amber-500 cursor-pointer hover:bg-amber-300 hover:scale-110' 
+    : 'hover:bg-amber-300'}`;
 
   const eventHandlers = isHacked ? {} : {
     onMouseEnter: moveButton,
@@ -39,7 +39,6 @@ const MovingButton: React.FC<MovingButtonProps> = ({ children, isHacked, onClick
     },
   };
 
-  // If position is set AND the button is not hacked, it becomes absolutely positioned.
   if (position && !isHacked) {
     return (
       <button
@@ -48,9 +47,10 @@ const MovingButton: React.FC<MovingButtonProps> = ({ children, isHacked, onClick
         {...eventHandlers}
         className={finalClasses}
         style={{
-          position: 'absolute',
+          position: 'fixed',
           top: `${position.top}px`,
           left: `${position.left}px`,
+          zIndex: 50
         }}
       >
         {children}
@@ -58,7 +58,6 @@ const MovingButton: React.FC<MovingButtonProps> = ({ children, isHacked, onClick
     );
   }
 
-  // Initially, or if hacked, the button is rendered in the normal document flow.
   return (
     <button
       ref={buttonRef}
