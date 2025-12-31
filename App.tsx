@@ -102,7 +102,7 @@ const useSoundEffects = () => {
   const playMusic = () => {
     if (isMuted) return;
     if (!musicAudio.current) {
-      musicAudio.current = new Audio('music.ogg');
+      musicAudio.current = new Audio('https://raw.githubusercontent.com/NitinBot001/happy-new-year-2k26/main/music.ogg');
       musicAudio.current.loop = true;
       musicAudio.current.volume = 0.5;
     }
