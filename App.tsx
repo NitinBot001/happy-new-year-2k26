@@ -34,7 +34,7 @@ const contentMap = {
     bg: 'sky-950',
     particleColors: ['#7dd3fc', '#e0f2fe', '#ffffff'],
     failJokes: [
-      { title: "Frozen Heart? 🧊", message: "Looks like you're still in hibernation mode. 2025 was a long winter, huh?" },
+      { title: "Frozen Heart? 🧊", message: "Looks like you're still in hibernation mode. 2025 was a lot. We'll just nap until 2027." },
       { title: "Ice Cold! 🥶", message: "Expectations set to 'Absolute Zero'. We'll just stay inside and drink hot cocoa." },
       { title: "Snow Joke! ⛄", message: "Who needs legendary when you have a warm blanket and zero responsibilities?" }
     ],
@@ -66,20 +66,24 @@ const App: React.FC = () => {
     setShowContent(true);
   }, []);
 
-  const handleToss = () => {
+  const handleSpin = () => {
     if (isTossing) return;
     setIsTossing(true);
     
-    // Realistic spin: 5 to 8 full rotations plus random result
-    const extraDegrees = Math.random() > 0.5 ? 0 : 180; // 0 for Gold, 180 for Ice
-    const newRotation = rotation + (1440 + Math.random() * 720) + extraDegrees;
-    setRotation(newRotation);
+    const spins = 5 + Math.floor(Math.random() * 5); 
+    const extraDegrees = Math.floor(Math.random() * 360);
+    const totalRotation = rotation + (spins * 360) + extraDegrees;
+    
+    setRotation(totalRotation);
 
     setTimeout(() => {
-      const result: Theme = Math.abs((newRotation % 360)) < 90 || Math.abs((newRotation % 360)) > 270 ? 'gold' : 'ice';
+      const normalized = (totalRotation % 360);
+      const segmentIndex = Math.floor(((360 - normalized) % 360) / 45);
+      const result: Theme = (segmentIndex % 2 === 0) ? 'gold' : 'ice';
+      
       setTheme(result);
       setIsTossing(false);
-    }, 3200);
+    }, 4000);
   };
 
   const triggerConfetti = (isBig: boolean) => {
@@ -122,49 +126,77 @@ const App: React.FC = () => {
   if (theme === 'none') {
     return (
       <main className="flex flex-col items-center justify-center min-h-screen bg-[#020617] p-6 text-center overflow-hidden">
-        <h1 className="text-4xl md:text-7xl font-syne font-black text-white mb-12 tracking-tighter uppercase leading-none">
-          Toss for your <br/> 
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-white to-cyan-400 animate-pulse">2026 Destiny</span>
+        <h1 className="text-4xl md:text-7xl font-syne font-black text-white mb-8 tracking-tighter uppercase leading-none">
+          Spin for your <br/> 
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-white to-cyan-400">2026 Destiny</span>
         </h1>
         
-        <div 
-          onClick={handleToss}
-          className={`relative w-64 h-64 md:w-80 md:h-80 cursor-pointer group select-none transition-all duration-500 ${isTossing ? 'scale-110' : 'hover:scale-105'}`}
-        >
-          {/* Outer Ring Glow */}
-          <div className={`absolute -inset-4 rounded-full blur-2xl transition-opacity duration-1000 ${isTossing ? 'opacity-60 bg-white animate-pulse-fast' : 'opacity-20 bg-gradient-to-tr from-amber-500 to-cyan-400 group-hover:opacity-40'}`}></div>
+        <div className="relative mt-8">
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-50 w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[30px] border-t-white drop-shadow-2xl animate-bounce-slow"></div>
           
-          {/* The Orb */}
           <div 
-            className="relative w-full h-full rounded-full border-8 border-white/5 bg-white/10 backdrop-blur-3xl flex items-center justify-center overflow-hidden orb-inner-spin shadow-2xl"
-            style={{ transform: `rotate(${rotation}deg)` }}
+            onClick={handleSpin}
+            className={`relative w-72 h-72 md:w-96 md:h-96 cursor-pointer group select-none transition-transform duration-500 ${isTossing ? 'scale-105' : 'hover:scale-105'}`}
           >
-            {/* Split Background Inside Orb */}
-            <div className="absolute inset-0 flex rotate-45">
-              <div className="flex-1 bg-gradient-to-br from-amber-500 to-amber-700 opacity-60"></div>
-              <div className="flex-1 bg-gradient-to-br from-cyan-500 to-sky-700 opacity-60"></div>
-            </div>
+            <div className={`absolute -inset-6 rounded-full blur-3xl transition-opacity duration-1000 ${isTossing ? 'opacity-40 bg-white animate-pulse' : 'opacity-10 bg-white'}`}></div>
             
-            {/* Symbols */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center">
-              <span className="text-5xl md:text-6xl drop-shadow-lg">✨</span>
-              <span className="text-xs font-unbounded font-black text-white mt-2">AURA</span>
-            </div>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center rotate-180">
-              <span className="text-5xl md:text-6xl drop-shadow-lg">❄️</span>
-              <span className="text-xs font-unbounded font-black text-white mt-2">FROST</span>
+            <div 
+              className="relative w-full h-full rounded-full border-[10px] border-white/20 bg-[#020617] shadow-[0_0_60px_rgba(0,0,0,0.8)] overflow-hidden"
+              style={{ 
+                transform: `rotate(${rotation}deg)`,
+                transition: 'transform 4s cubic-bezier(0.15, 0, 0, 1)' 
+              }}
+            >
+              {[...Array(8)].map((_, i) => {
+                const isGold = i % 2 === 0;
+                return (
+                  <div 
+                    key={i}
+                    className="absolute top-0 left-0 w-full h-full"
+                    style={{ transform: `rotate(${i * 45}deg)` }}
+                  >
+                    <div 
+                      className={`w-full h-1/2 absolute top-0 left-0 origin-bottom flex items-start justify-center pt-8 border-l border-white/5`}
+                      style={{ 
+                        clipPath: 'polygon(50% 100%, 0 0, 100% 0)',
+                        backgroundColor: isGold ? '#f59e0b' : '#0891b2',
+                        opacity: isGold ? '0.7' : '0.6'
+                      }}
+                    >
+                      <span className="text-2xl md:text-3xl filter brightness-110 drop-shadow-md">
+                        {isGold ? '✨' : '❄️'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Center Core */}
-            <div className="z-10 w-24 h-24 rounded-full bg-white/20 backdrop-blur-md border-2 border-white/30 flex items-center justify-center">
-               <span className="text-4xl animate-pulse">{isTossing ? '💎' : '🔮'}</span>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-24 h-24 md:w-28 md:h-28 rounded-full bg-slate-900 border-4 border-white shadow-2xl flex items-center justify-center group-hover:bg-slate-800 transition-colors">
+               <div className="text-center">
+                 <p className="text-[10px] font-unbounded font-black text-white/50 tracking-widest uppercase">Tap to</p>
+                 <p className="text-lg md:text-xl font-syne font-black text-white tracking-tighter uppercase leading-none">SPIN</p>
+               </div>
             </div>
           </div>
         </div>
 
-        <p className={`mt-12 font-jakarta tracking-[0.3em] uppercase text-xs md:text-sm font-black transition-all duration-500 ${isTossing ? 'text-white scale-125' : 'text-slate-500'}`}>
-          {isTossing ? "The cosmos is deciding..." : "Click the orb to toss"}
-        </p>
+        <div className="mt-12 space-y-4">
+          <p className={`font-jakarta tracking-[0.3em] uppercase text-xs md:text-sm font-black transition-all duration-500 ${isTossing ? 'text-white scale-110' : 'text-slate-500'}`}>
+            {isTossing ? "Fate is spinning..." : "Will you be Aura or Frost?"}
+          </p>
+          
+          <div className="flex justify-center gap-8 opacity-40">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-amber-500"></span>
+              <span className="text-[10px] font-bold text-white uppercase tracking-widest">Aura (Gold)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-cyan-500"></span>
+              <span className="text-[10px] font-bold text-white uppercase tracking-widest">Frost (Ice)</span>
+            </div>
+          </div>
+        </div>
       </main>
     );
   }
@@ -196,7 +228,6 @@ const App: React.FC = () => {
                 {activeContent.celebration.bottom}
               </p>
 
-              {/* Instagram Follow Section */}
               <div className="mt-16 pt-8 border-t border-white/10 w-full max-w-sm">
                 <p className="text-white/40 font-jakarta text-[10px] tracking-[0.4em] uppercase mb-4">Crafted by</p>
                 <a 
@@ -244,13 +275,18 @@ const App: React.FC = () => {
                 {!isHacked && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-unbounded font-black text-black/80">26</div>}
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-8">
-                <MovingButton isHacked={isHacked} theme={theme} onClick={() => { setIsYesClicked(true); triggerConfetti(true); }}>
-                  ABSOLUTELY!
-                </MovingButton>
-                <StaticButton theme={theme} onClick={() => setIsNoClicked(true)}>
-                  {theme === 'gold' ? 'NOT YET' : 'STAY FROZEN'}
-                </StaticButton>
+              {/* Layout Stable Containers */}
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-8 min-h-[100px]">
+                <div className="w-full sm:w-64 h-24 flex items-center justify-center relative">
+                  <MovingButton isHacked={isHacked} theme={theme} onClick={() => { setIsYesClicked(true); triggerConfetti(true); }}>
+                    ABSOLUTELY!
+                  </MovingButton>
+                </div>
+                <div className="w-full sm:w-64 h-24 flex items-center justify-center">
+                  <StaticButton theme={theme} onClick={() => setIsNoClicked(true)}>
+                    {theme === 'gold' ? 'NOT YET' : 'STAY FROZEN'}
+                  </StaticButton>
+                </div>
               </div>
             </div>
           )}
