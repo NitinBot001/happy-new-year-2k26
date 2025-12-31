@@ -14,7 +14,9 @@ const useSoundEffects = () => {
 
   const initAudio = () => {
     if (!audioCtx.current) {
-      audioCtx.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioCtx.current = new (window.AudioContext || (window as any).webkitAudioContext)({
+        sampleRate: 44100,
+      });
     }
   };
 
@@ -32,12 +34,14 @@ const useSoundEffects = () => {
 
     switch (type) {
       case 'tick':
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(150, now);
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+        // Crisp, high-frequency "click" for mechanical wheel
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(10, now + 0.02);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
         osc.start(now);
-        osc.stop(now + 0.05);
+        osc.stop(now + 0.02);
         break;
       case 'whoosh':
         osc.type = 'triangle';
@@ -78,7 +82,7 @@ const useSoundEffects = () => {
         osc2.stop(now + 0.8);
         break;
       case 'success':
-        [440, 554.37, 659.25].forEach((freq, i) => {
+        [440, 554.37, 659.25, 880].forEach((freq, i) => {
           const o = ctx.createOscillator();
           const g = ctx.createGain();
           o.type = 'sine';
@@ -148,6 +152,9 @@ const App: React.FC = () => {
   const [starClicks, setStarClicks] = useState(0);
   const [isShaking, setIsShaking] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  
+  // Track current indicator snap for sound
+  const lastSnap = useRef(0);
 
   useEffect(() => {
     setShowContent(true);
@@ -163,20 +170,35 @@ const App: React.FC = () => {
     const extraDegrees = Math.floor(Math.random() * 360);
     const totalRotation = rotation + (spins * 360) + extraDegrees;
     
+    const duration = 4000;
     setRotation(totalRotation);
 
-    let tickCount = 0;
-    const totalSegments = (spins * 8) + Math.floor(extraDegrees / 45);
-    const duration = 4000;
-    
-    for (let i = 0; i < totalSegments; i++) {
-        const time = duration * Math.pow(i / totalSegments, 1.5);
-        setTimeout(() => {
-            if (isTossing) playSound('tick');
-        }, time);
-    }
+    // Dynamic ticking logic based on ease-out curve
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Quartic ease-out matching 'cubic-bezier(0.15, 0, 0, 1)' roughly
+      const easeOut = 1 - Math.pow(1 - progress, 4);
+      const currentRotation = rotation + (totalRotation - rotation) * easeOut;
+      
+      // Check if we've passed a 45-degree segment boundary
+      const currentSnap = Math.floor(currentRotation / 45);
+      if (currentSnap !== lastSnap.current) {
+        playSound('tick');
+        lastSnap.current = currentSnap;
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      }
+    };
+    requestAnimationFrame(tick);
 
     setTimeout(() => {
+      // Wheel calculation: segments are 45 deg wide.
+      // Segment 0: 0-45 deg. If top is 0 deg, segment index = floor((360 - normAngle) / 45)
       const normalized = (totalRotation % 360);
       const segmentIndex = Math.floor(((360 - normalized) % 360) / 45);
       const result: Theme = (segmentIndex % 2 === 0) ? 'gold' : 'ice';
@@ -249,7 +271,10 @@ const App: React.FC = () => {
           </h1>
           
           <div className="relative inline-block mt-4">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-50 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[20px] border-t-white drop-shadow-2xl animate-bounce-slow"></div>
+            {/* Redesigned Indicator Arrow */}
+            <div className={`absolute -top-6 left-1/2 -translate-x-1/2 z-50 transition-transform duration-75 ${isTossing ? 'animate-bounce-slow' : ''}`}>
+               <div className="w-8 h-8 bg-white shadow-2xl rounded-sm rotate-45 border-r-4 border-b-4 border-slate-900"></div>
+            </div>
             
             <div 
               onClick={handleSpin}
@@ -257,38 +282,32 @@ const App: React.FC = () => {
             >
               <div className={`absolute -inset-4 rounded-full blur-2xl transition-opacity duration-1000 ${isTossing ? 'opacity-40 bg-white animate-pulse' : 'opacity-10 bg-white'}`}></div>
               
+              {/* The Wheel with Conic Gradient for perfect even parts */}
               <div 
-                className="relative w-full h-full rounded-full border-[6px] sm:border-[10px] border-white/20 bg-[#020617] shadow-[0_0_40px_rgba(0,0,0,0.8)] overflow-hidden"
+                className="relative w-full h-full rounded-full border-[6px] sm:border-[10px] border-white/20 bg-slate-900 shadow-[0_0_40px_rgba(0,0,0,0.8)] overflow-hidden"
                 style={{ 
                   transform: `rotate(${rotation}deg)`,
-                  transition: 'transform 4s cubic-bezier(0.15, 0, 0, 1)' 
+                  transition: 'transform 4s cubic-bezier(0.15, 0, 0, 1)',
+                  background: 'conic-gradient(#f59e0b 0deg 45deg, #0891b2 45deg 90deg, #f59e0b 90deg 135deg, #0891b2 135deg 180deg, #f59e0b 180deg 225deg, #0891b2 225deg 270deg, #f59e0b 270deg 315deg, #0891b2 315deg 360deg)'
                 }}
               >
-                {[...Array(8)].map((_, i) => {
-                  const isGold = i % 2 === 0;
-                  return (
-                    <div 
-                      key={i}
-                      className="absolute top-0 left-0 w-full h-full"
-                      style={{ transform: `rotate(${i * 45}deg)` }}
-                    >
-                      <div 
-                        className={`w-full h-1/2 absolute top-0 left-0 origin-bottom flex items-start justify-center pt-4 sm:pt-8 border-l border-white/5`}
-                        style={{ 
-                          clipPath: 'polygon(50% 100%, 0 0, 100% 0)',
-                          backgroundColor: isGold ? '#f59e0b' : '#0891b2',
-                          opacity: isGold ? '0.7' : '0.6'
-                        }}
-                      >
-                        <span className="text-xl sm:text-2xl md:text-3xl filter brightness-110 drop-shadow-md">
-                          {isGold ? '✨' : '❄️'}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+                {/* Visual Dividers and Icons */}
+                {[...Array(8)].map((_, i) => (
+                  <div 
+                    key={i}
+                    className="absolute top-0 left-0 w-full h-full flex justify-center pt-8 sm:pt-12 pointer-events-none"
+                    style={{ transform: `rotate(${i * 45 + 22.5}deg)` }}
+                  >
+                    <span className="text-xl sm:text-2xl md:text-3xl filter brightness-110 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] select-none">
+                      {i % 2 === 0 ? '✨' : '❄️'}
+                    </span>
+                    {/* Divider Line */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-white/20 origin-center" style={{ transform: 'rotate(-22.5deg)' }}></div>
+                  </div>
+                ))}
               </div>
 
+              {/* Center Hub */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-slate-900 border-2 sm:border-4 border-white shadow-2xl flex items-center justify-center group-hover:bg-slate-800 transition-colors">
                  <div className="text-center">
                    <p className="text-[8px] sm:text-[10px] font-unbounded font-black text-white/50 tracking-widest uppercase">Tap to</p>
