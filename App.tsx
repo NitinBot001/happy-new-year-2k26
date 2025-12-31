@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import MovingButton from './components/MovingButton';
 import StaticButton from './components/StaticButton';
 import BackgroundAnimation from './components/BackgroundAnimation';
@@ -8,56 +9,72 @@ const jokes = [
   { title: "Excellent! 🛌", message: "Your bed now has 100% more space for activities." },
   { title: "Success! 😻", message: "You've successfully subscribed to 'Single & Sassy' for another year. Your cat is thrilled!" },
   { title: "Mission Accomplished! 📺", message: "Operation 'Avoid Sharing the Remote' is a go for 2026." },
-  { title: "Welcome to the Club! 🍿", message: "We have snacks, and you never have to share them." }
+  { title: "Welcome to the Club! 🍿", message: "We have snacks, and you never have to share them." },
+  { title: "Lego Master! 🧱", message: "You can now buy the 7,000 piece Millennium Falcon and build it on the dining table for 3 months." },
+  { title: "Blanket Burrito! 💤", message: "Every square inch of the duvet is yours. You are the burrito now." },
+  { title: "Pizza Prophet! 🍕", message: "Large pizza for one? It's not a cry for help, it's a high-performance lifestyle choice." },
+  { title: "Gamer God! 🎮", message: "Zero interruptions during boss fights. Your K/D ratio is about to skyrocket." },
+  { title: "Plant Parent! 🌿", message: "Your plant collection is about to get a lot bigger. They listen better anyway." }
 ];
-
-const HACK_CODE = 'love';
 
 const App: React.FC = () => {
   const [isYesClicked, setIsYesClicked] = useState(false);
   const [isNoClicked, setIsNoClicked] = useState(false);
   const [isHacked, setIsHacked] = useState(false);
-  const [secretCode, setSecretCode] = useState('');
   const [showContent, setShowContent] = useState(false);
   const [selectedJoke, setSelectedJoke] = useState({ title: '', message: '' });
+  
+  // Heart hack state
+  const [heartClicks, setHeartClicks] = useState(0);
+  // Fix: Use ReturnType<typeof setTimeout> to avoid NodeJS namespace error in browser environments
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isShaking, setIsShaking] = useState(false);
 
   useEffect(() => {
-    // Trigger the fade-in animation on mount
     setShowContent(true);
+    return () => {
+        if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-        // Ignore if the game is already "won" in either way
-        if (isYesClicked || isNoClicked) return;
+  const handleHeartClick = () => {
+    if (isHacked || isYesClicked || isNoClicked) return;
 
-        const newCode = (secretCode + e.key.toLowerCase()).slice(-HACK_CODE.length);
-        setSecretCode(newCode);
+    // Visual feedback
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 300);
 
-        if (newCode === HACK_CODE) {
-            setIsHacked(true);
-        }
-    };
+    const nextClicks = heartClicks + 1;
+    
+    // Start timer on first click
+    if (nextClicks === 1) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        setHeartClicks(0);
+      }, 10000);
+    }
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-        window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [secretCode, isYesClicked, isNoClicked]);
+    setHeartClicks(nextClicks);
+
+    if (nextClicks >= 5) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      setIsHacked(true);
+    }
+  };
 
   const handleYesClick = () => {
     const randomIndex = Math.floor(Math.random() * jokes.length);
     setSelectedJoke(jokes[randomIndex]);
 
-    setShowContent(false); // Start fade-out
+    setShowContent(false);
     setTimeout(() => {
       setIsYesClicked(true);
-      setShowContent(true); // Start fade-in for the new content
-    }, 500); // Match this duration with the transition duration
+      setShowContent(true);
+    }, 500);
   };
   
   const handleNoClick = () => {
-    if (!isHacked) return; // Only clickable if hacked
+    if (!isHacked) return;
     setShowContent(false);
     setTimeout(() => {
       setIsNoClicked(true);
@@ -76,7 +93,7 @@ const App: React.FC = () => {
           </h1>
           <p className="text-lg md:text-2xl">
             Looks like you're determined to find love in 2026. <br />
-            We respect the hustle! Here are some places to start your quest:
+            We respect the hustle! Your persistence is unmatched.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
             <a href="https://tinder.com" target="_blank" rel="noopener noreferrer" className="px-8 py-3 w-48 text-center font-bold text-white bg-rose-500 rounded-lg shadow-md hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-opacity-75 transform hover:scale-105 transition-transform duration-200">
@@ -90,7 +107,7 @@ const App: React.FC = () => {
             </a>
           </div>
           <p className="text-md text-gray-500 pt-4">
-            Good luck out there, you coding Casanova! 😉
+            Good luck out there, you persistent romantic! 😉
           </p>
         </div>
       );
@@ -105,18 +122,36 @@ const App: React.FC = () => {
           <p className="text-lg md:text-2xl">
             {selectedJoke.message}
           </p>
+          <div className="pt-8">
+            <button 
+              onClick={() => { setShowContent(false); setTimeout(() => { setIsYesClicked(false); setShowContent(true); }, 500); }}
+              className="text-gray-400 hover:text-gray-600 underline text-sm"
+            >
+              Wait, I changed my mind...
+            </button>
+          </div>
         </div>
       );
     }
 
     return (
        <div className="space-y-8">
-          <h1 className="text-3xl md:text-5xl font-bold">
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-800">
             Would you like to remain single for 2026?
           </h1>
-          <div className="text-6xl md:text-8xl animate-pulse">
+          
+          <div 
+            onClick={handleHeartClick}
+            className={`text-6xl md:text-8xl cursor-pointer select-none transition-all duration-300 ${isShaking ? 'scale-125 rotate-12' : 'hover:scale-110'} ${isHacked ? 'animate-none' : 'animate-pulse'}`}
+          >
             {isHacked ? '❤️' : '❤️‍🩹'}
+            {!isHacked && heartClicks > 0 && (
+              <div className="text-sm font-bold text-rose-300 mt-2 animate-bounce">
+                {5 - heartClicks} more...
+              </div>
+            )}
           </div>
+
           <div className="flex justify-center items-center gap-4">
             <StaticButton onClick={handleYesClick}>
               YES
