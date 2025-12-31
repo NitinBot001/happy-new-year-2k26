@@ -106,7 +106,7 @@ const useSoundEffects = () => {
 
     try {
       if (!musicBuffer.current) {
-        const response = await fetch('music.mp3');
+        const response = await fetch('music.ogg');
         if (!response.ok) throw new Error('Music file not found');
         const arrayBuffer = await response.arrayBuffer();
         musicBuffer.current = await ctx.decodeAudioData(arrayBuffer);
