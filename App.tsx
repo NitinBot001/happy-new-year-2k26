@@ -5,289 +5,219 @@ import MovingButton from './components/MovingButton';
 import StaticButton from './components/StaticButton';
 import BackgroundAnimation from './components/BackgroundAnimation';
 
-const failJokes = [
-  { title: "Frozen Heart? 🧊", message: "Looks like you're still in hibernation mode. 2025 was a long winter, huh?" },
-  { title: "Ice Cold! 🥶", message: "Expectations set to 'Absolute Zero'. We'll just stay inside and drink hot cocoa." },
-  { title: "Still Thawing... 🕯️", message: "A 'Chilly but Cozy' 2026 it is. More time for fuzzy socks and gaming." },
-  { title: "Snow Joke! ⛄", message: "Who needs legendary when you have a warm blanket and zero responsibilities?" },
-  { title: "Glacier Speed! 🏔️", message: "You've reached peak chill. 2026 is waiting for you to melt the ice." }
-];
+type Theme = 'gold' | 'ice' | 'none';
 
-const celebrationSets = [
-  {
-    top: "The ice breaks — and so can your limits. Here’s to crisp courage, frosty mornings, and dreams that crystallize into reality.",
-    boxes: [
-      { value: "365", label: "NEW OPPORTUNITIES" },
-      { value: "52", label: "WEEKS OF GROWTH" },
-      { value: "1", label: "BRAND-NEW YOU" }
+const contentMap = {
+  gold: {
+    primary: 'amber-400',
+    secondary: 'amber-500',
+    bg: 'slate-950',
+    particleColors: ['#fbbf24', '#f59e0b', '#ffffff'],
+    failJokes: [
+      { title: "Honesty is Key! 😴", message: "Fair enough. 2025 was a lot. We'll just nap until 2027." },
+      { title: "Understood! 📉", message: "Lowering expectations to 'Just Survived' mode. Coffee is on the left." },
+      { title: "Realist Alert! 🍕", message: "Who needs legendary when you have leftover pizza and a stable internet connection?" }
     ],
-    bottom: "Keep sliding — the magic is in the journey ❄️"
+    celebration: {
+      top: "The stars align for your greatest chapter yet. May your path be paved with gold and your spirit remain unbreakable.",
+      boxes: [
+        { value: "365", label: "GOLDEN CHANCES" },
+        { value: "100%", label: "PURE AMBITION" },
+        { value: "∞", label: "PROSPERITY" }
+      ],
+      bottom: "The crown is yours to claim. ✨"
+    }
   },
-  {
-    top: "May the year ahead bring quiet peace like a fresh snowfall and moments that sparkle like ice.",
-    boxes: [
-      { value: "12", label: "NEW BEGINNINGS" },
-      { value: "1000+", label: "CHILL MOMENTS" },
-      { value: "∞", label: "POSSIBILITIES" }
+  ice: {
+    primary: 'cyan-300',
+    secondary: 'sky-400',
+    bg: 'sky-950',
+    particleColors: ['#7dd3fc', '#e0f2fe', '#ffffff'],
+    failJokes: [
+      { title: "Frozen Heart? 🧊", message: "Looks like you're still in hibernation mode. 2025 was a long winter, huh?" },
+      { title: "Ice Cold! 🥶", message: "Expectations set to 'Absolute Zero'. We'll just stay inside and drink hot cocoa." },
+      { title: "Snow Joke! ⛄", message: "Who needs legendary when you have a warm blanket and zero responsibilities?" }
     ],
-    bottom: "Stay cool — you're making history 🌙"
-  },
-  {
-    top: "This year belongs to cold focus, sharp ideas, and an unstoppable winter spirit.",
-    boxes: [
-      { value: "1%", label: "SHARPER EVERY DAY" },
-      { value: "24/7", label: "ICE-COLD DRIVE" },
-      { value: "0", label: "MELTDOWNS" }
-    ],
-    bottom: "Build your empire on solid ground. 🧊"
-  },
-  {
-    top: "Cheers to new arctic adventures and the people who make the cold feel warm.",
-    boxes: [
-      { value: "365", label: "DAYS TO SHINE" },
-      { value: "12", label: "MONTHS OF JOY" },
-      { value: "4", label: "SEASONS OF MAGIC" }
-    ],
-    bottom: "Let’s make this unforgettable ❆"
-  },
-  {
-    top: "Wishing you days filled with clarity, the strength of a blizzard, and reasons to glow.",
-    boxes: [
-      { value: "3", label: "STRENGTH, CLARITY, PEACE" },
-      { value: "0", label: "SHIVERS" },
-      { value: "100%", label: "COOL" }
-    ],
-    bottom: "You’ve got the power 🌟"
+    celebration: {
+      top: "The ice breaks — and so can your limits. Here’s to crisp courage, frosty mornings, and dreams that crystallize into reality.",
+      boxes: [
+        { value: "365", label: "NEW OPPORTUNITIES" },
+        { value: "52", label: "WEEKS OF GROWTH" },
+        { value: "1", label: "BRAND-NEW YOU" }
+      ],
+      bottom: "Keep sliding — the magic is in the journey ❄️"
+    }
   }
-];
+};
 
 const App: React.FC = () => {
+  const [theme, setTheme] = useState<Theme>('none');
+  const [isTossing, setIsTossing] = useState(false);
   const [isNoClicked, setIsNoClicked] = useState(false);
   const [isYesClicked, setIsYesClicked] = useState(false);
   const [isHacked, setIsHacked] = useState(false);
   const [showContent, setShowContent] = useState(false);
-  const [selectedJoke, setSelectedJoke] = useState({ title: '', message: '' });
-  const [selectedCelebration, setSelectedCelebration] = useState(celebrationSets[0]);
-  const [showHint, setShowHint] = useState(false);
-  
   const [starClicks, setStarClicks] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isShaking, setIsShaking] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setShowContent(true);
-    return () => {
-        if (timerRef.current) clearTimeout(timerRef.current);
-    };
   }, []);
 
-  const triggerSmallConfetti = () => {
-    confetti({
-      particleCount: 60,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#7dd3fc', '#e0f2fe', '#ffffff'],
-      scale: 0.8
-    });
+  const handleToss = () => {
+    setIsTossing(true);
+    setTimeout(() => {
+      const result: Theme = Math.random() > 0.5 ? 'gold' : 'ice';
+      setTheme(result);
+      setIsTossing(false);
+    }, 2000);
   };
 
-  const triggerBigConfetti = () => {
-    const duration = 5 * 1000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-    const interval: any = setInterval(function() {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
-
-      const particleCount = 50 * (timeLeft / duration);
-      confetti({ ...defaults, particleCount, colors: ['#bae6fd', '#f0f9ff', '#ffffff'], origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-      confetti({ ...defaults, particleCount, colors: ['#7dd3fc', '#ffffff'], origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-    }, 250);
+  const triggerConfetti = (isBig: boolean) => {
+    const config = contentMap[theme === 'none' ? 'gold' : theme];
+    if (isBig) {
+      const duration = 5 * 1000;
+      const animationEnd = Date.now() + duration;
+      const interval: any = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) return clearInterval(interval);
+        confetti({ 
+          particleCount: 40, 
+          spread: 360, 
+          colors: config.particleColors,
+          origin: { x: Math.random(), y: Math.random() - 0.2 } 
+        });
+      }, 250);
+    } else {
+      confetti({
+        particleCount: 60,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: config.particleColors
+      });
+    }
   };
 
   const handleStarClick = () => {
     if (isHacked || isNoClicked || isYesClicked) return;
-
     setIsShaking(true);
     setTimeout(() => setIsShaking(false), 300);
-
     const nextClicks = starClicks + 1;
-    
-    if (nextClicks === 1) {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        setStarClicks(0);
-      }, 10000);
-    }
-
     setStarClicks(nextClicks);
-
     if (nextClicks >= 5) {
-      if (timerRef.current) clearTimeout(timerRef.current);
       setIsHacked(true);
-      setShowHint(false);
-      triggerSmallConfetti();
+      triggerConfetti(false);
     }
   };
 
-  const handleNoClick = () => {
-    const randomIndex = Math.floor(Math.random() * failJokes.length);
-    setSelectedJoke(failJokes[randomIndex]);
-
-    setShowContent(false);
-    setTimeout(() => {
-      setIsNoClicked(true);
-      setShowContent(true);
-    }, 500);
-  };
-  
-  const handleYesClick = () => {
-    const randomSet = celebrationSets[Math.floor(Math.random() * celebrationSets.length)];
-    setSelectedCelebration(randomSet);
-    
-    setShowContent(false);
-    setTimeout(() => {
-      setIsYesClicked(true);
-      setShowContent(true);
-      triggerBigConfetti();
-    }, 500);
-  };
-
-  const contentClasses = `transition-opacity duration-700 ease-in-out ${showContent ? 'opacity-100' : 'opacity-0'}`;
-
-  const renderContent = () => {
-    if (isYesClicked) {
-      return (
-        <div className="space-y-12 max-w-5xl mx-auto px-4">
-          <h1 className="text-6xl md:text-9xl font-syne font-black text-cyan-300 drop-shadow-[0_0_20px_rgba(103,232,249,0.9)] animate-bounce mb-8 uppercase tracking-tighter">
-            COOL 2026! ❄️
-          </h1>
-          
-          <p className="text-xl md:text-3xl text-sky-100 font-outfit font-light leading-relaxed max-w-3xl mx-auto italic">
-            "{selectedCelebration.top}"
-          </p>
-
-          <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 py-8">
-            {selectedCelebration.boxes.map((box, idx) => (
-              <div 
-                key={idx} 
-                className="flex-1 p-8 bg-sky-950/40 border border-sky-400/30 rounded-[2rem] backdrop-blur-2xl shadow-[0_0_40px_rgba(56,189,248,0.15)] hover:border-sky-300 hover:shadow-[0_0_50px_rgba(56,189,248,0.3)] transition-all duration-500 group flex flex-col justify-center items-center text-center"
-              >
-                <span className="block text-white text-5xl md:text-6xl font-unbounded font-black mb-4 tracking-tighter group-hover:scale-110 transition-transform duration-500">
-                  {box.value}
-                </span>
-                <span className="text-xs md:text-sm text-sky-300 font-jakarta font-bold uppercase tracking-[0.2em] leading-tight">
-                  {box.label}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-6">
-            <p className="text-xl md:text-2xl text-sky-300 font-outfit font-semibold tracking-wide">
-              {selectedCelebration.bottom}
-            </p>
-            <div className="text-sky-800 font-jakarta font-bold text-sm mt-8 tracking-widest uppercase flex items-center justify-center gap-2">
-              <span className="w-2 h-2 bg-sky-400 rounded-full animate-pulse"></span>
-              Arctic Legend: <span className="text-sky-300 underline decoration-sky-300/50">ACTIVE</span>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    
-    if (isNoClicked) {
-      return (
-        <div className="space-y-8">
-          <h1 className="text-5xl md:text-7xl font-syne font-bold text-sky-800 tracking-tight">
-            {selectedJoke.title}
-          </h1>
-          <p className="text-xl md:text-3xl text-sky-200 font-outfit font-light max-w-2xl mx-auto">
-            {selectedJoke.message}
-          </p>
-          <div className="pt-12">
-            <button 
-              onClick={() => { setShowContent(false); setTimeout(() => { setIsNoClicked(false); setShowContent(true); }, 500); }}
-              className="font-jakarta text-sky-500 hover:text-sky-300 underline text-lg transition-colors font-medium decoration-sky-500/30 underline-offset-8"
-            >
-              Wait, the ice is melting... I'm ready!
-            </button>
-          </div>
-        </div>
-      );
-    }
-
+  if (theme === 'none') {
     return (
-       <div className="space-y-16">
-          <h1 className="text-5xl md:text-8xl font-syne font-black text-white tracking-tight leading-[1.1]">
-            Ready to <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.6)]">CHILL</span> in 2026? <br/>
-            Make it your <span className="italic underline decoration-cyan-500/50 decoration-4 underline-offset-8">coolest</span> year yet.
-          </h1>
-          
-          <div 
-            onClick={handleStarClick}
-            className={`relative inline-block text-8xl md:text-[12rem] cursor-pointer select-none transition-all duration-500 ${isShaking ? 'scale-125 rotate-12' : 'hover:scale-105'} ${isHacked ? 'animate-none' : 'animate-pulse'}`}
-          >
-            <span className="drop-shadow-[0_0_30px_rgba(34,211,238,0.9)] filter brightness-125">
-                {isHacked ? '❆' : '❄'}
+      <main className="flex flex-col items-center justify-center min-h-screen bg-[#020617] p-6 text-center">
+        <h1 className="text-4xl md:text-6xl font-syne font-black text-white mb-12 tracking-tighter uppercase">
+          Toss for your <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-cyan-400">2026 Destiny</span>
+        </h1>
+        
+        <div 
+          onClick={!isTossing ? handleToss : undefined}
+          className={`relative w-48 h-48 md:w-64 md:h-64 cursor-pointer group transition-all duration-500 ${isTossing ? 'animate-spin scale-110' : 'hover:scale-105'}`}
+        >
+          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-500 via-white to-cyan-400 blur-xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
+          <div className="relative w-full h-full rounded-full border-4 border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center overflow-hidden">
+            <div className={`absolute inset-0 bg-gradient-to-br from-amber-500/40 to-cyan-500/40 transition-opacity duration-1000 ${isTossing ? 'opacity-100' : 'opacity-40'}`}></div>
+            <span className="text-5xl md:text-7xl drop-shadow-2xl">
+              {isTossing ? '⏳' : '🔮'}
             </span>
-            {!isHacked && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-unbounded font-black text-sky-950 pointer-events-none opacity-80">
-                26
-              </div>
-            )}
-            {!isHacked && starClicks > 0 && (
-              <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-sm font-jakarta font-bold text-sky-400 whitespace-nowrap animate-bounce tracking-widest uppercase">
-                Tap {5 - starClicks}x to freeze the flow
-              </div>
-            )}
           </div>
-
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-8">
-            <MovingButton isHacked={isHacked} onClick={handleYesClick}>
-              ABSOLUTELY!
-            </MovingButton>
-            <StaticButton onClick={handleNoClick}>
-              STAY FROZEN
-            </StaticButton>
-          </div>
-          
-          <p className="text-sky-800 font-jakarta font-bold text-sm tracking-[0.3em] uppercase">
-            {isHacked ? "The arctic gate is open." : "Catch the breeze of ambition."}
-          </p>
         </div>
+
+        <p className="mt-12 font-jakarta text-slate-500 tracking-widest uppercase text-xs md:text-sm font-bold">
+          {isTossing ? "Consulting the universe..." : "Tap the orb to begin"}
+        </p>
+      </main>
     );
   }
 
+  const activeContent = contentMap[theme];
+
   return (
     <>
-      <BackgroundAnimation />
+      <BackgroundAnimation theme={theme} />
       <main className="flex items-center justify-center min-h-screen text-slate-100 p-4 overflow-hidden relative">
-        <div className={`text-center ${contentClasses}`}>
-          {renderContent()}
-        </div>
+        <div className={`text-center transition-opacity duration-700 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
+          {isYesClicked ? (
+            <div className="space-y-12 max-w-5xl mx-auto px-4">
+              <h1 className={`text-6xl md:text-9xl font-syne font-black text-${activeContent.primary} drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] animate-bounce uppercase tracking-tighter`}>
+                {theme === 'gold' ? 'LEGENDARY 2026!' : 'COOL 2026!'} {theme === 'gold' ? '✨' : '❄️'}
+              </h1>
+              <p className="text-xl md:text-3xl text-white font-outfit font-light leading-relaxed max-w-3xl mx-auto italic opacity-90">
+                "{activeContent.celebration.top}"
+              </p>
+              <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 py-8">
+                {activeContent.celebration.boxes.map((box, idx) => (
+                  <div key={idx} className={`flex-1 p-8 bg-black/40 border border-${activeContent.primary}/30 rounded-[2rem] backdrop-blur-2xl shadow-xl transition-all duration-500 flex flex-col items-center justify-center`}>
+                    <span className="block text-white text-5xl font-unbounded font-black mb-4">{box.value}</span>
+                    <span className={`text-xs font-jakarta font-bold uppercase tracking-widest text-${activeContent.primary}`}>{box.label}</span>
+                  </div>
+                ))}
+              </div>
+              <p className={`text-xl md:text-2xl font-outfit font-semibold text-${activeContent.primary}`}>
+                {activeContent.celebration.bottom}
+              </p>
+            </div>
+          ) : isNoClicked ? (
+            <div className="space-y-8">
+              <h1 className={`text-5xl md:text-7xl font-syne font-bold text-${activeContent.primary} tracking-tight uppercase`}>
+                {activeContent.failJokes[0].title}
+              </h1>
+              <p className="text-xl md:text-3xl text-white/80 font-outfit font-light max-w-2xl mx-auto italic">
+                {activeContent.failJokes[0].message}
+              </p>
+              <button 
+                onClick={() => setIsNoClicked(false)}
+                className={`font-jakarta text-${activeContent.primary} hover:opacity-70 underline text-lg transition-all underline-offset-8 mt-12`}
+              >
+                Actually, let's make it happen...
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-16">
+              <h1 className="text-5xl md:text-8xl font-syne font-black text-white tracking-tight leading-[1.1]">
+                Ready to make <span className={`text-${activeContent.primary} drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] uppercase`}>{theme === 'gold' ? 'History' : 'Chill'}</span> in 2026? <br/>
+                It's your <span className="italic underline decoration-white/20 decoration-4 underline-offset-8">time.</span>
+              </h1>
+              
+              <div onClick={handleStarClick} className={`relative inline-block text-8xl md:text-[12rem] cursor-pointer select-none transition-all duration-500 ${isShaking ? 'scale-125 rotate-12' : 'hover:scale-105'}`}>
+                <span className={`filter brightness-125 drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]`}>
+                  {isHacked ? (theme === 'gold' ? '👑' : '❆') : (theme === 'gold' ? '⭐' : '❄')}
+                </span>
+                {!isHacked && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-unbounded font-black text-black/80">26</div>}
+              </div>
 
-        {/* Hint Button */}
-        {!isHacked && !isYesClicked && !isNoClicked && (
-          <div className="fixed bottom-8 left-8 flex items-center gap-4 group z-20">
-            <button
-              onClick={() => setShowHint(!showHint)}
-              className="w-12 h-12 rounded-2xl bg-sky-950/80 border border-sky-400/40 flex items-center justify-center text-sky-300 hover:bg-sky-900 hover:border-sky-300 transition-all duration-300 shadow-2xl shadow-cyan-500/10 backdrop-blur-md"
-              aria-label="Hint"
-            >
-              <span className="font-syne font-bold text-xl">?</span>
-            </button>
-            <div className={`transition-all duration-500 overflow-hidden ${showHint ? 'max-w-xs opacity-100' : 'max-w-0 opacity-0'} whitespace-nowrap`}>
-              <div className="bg-sky-950/90 border border-sky-400/20 px-6 py-3 rounded-2xl text-sm font-jakarta text-sky-200 backdrop-blur-xl shadow-2xl tracking-wide">
-                Psst... Tap the <span className="text-sky-300 font-bold underline decoration-sky-300/30">Ice Snowflake</span> 5 times!
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-8">
+                <MovingButton isHacked={isHacked} theme={theme} onClick={() => { setIsYesClicked(true); triggerConfetti(true); }}>
+                  ABSOLUTELY!
+                </MovingButton>
+                <StaticButton theme={theme} onClick={() => setIsNoClicked(true)}>
+                  {theme === 'gold' ? 'NOT YET' : 'STAY FROZEN'}
+                </StaticButton>
               </div>
             </div>
+          )}
+        </div>
+
+        {!isHacked && !isYesClicked && !isNoClicked && (
+          <div className="fixed bottom-8 left-8 flex items-center gap-4 group z-20">
+            <button onClick={() => setShowHint(!showHint)} className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-all backdrop-blur-md">
+              <span className="font-syne font-bold text-xl">?</span>
+            </button>
+            {showHint && (
+              <div className="bg-white/10 border border-white/10 px-6 py-3 rounded-2xl text-sm font-jakarta text-white backdrop-blur-xl animate-fade-in">
+                Tap the center icon 5 times to unlock.
+              </div>
+            )}
           </div>
         )}
       </main>

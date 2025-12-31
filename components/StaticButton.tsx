@@ -3,14 +3,19 @@ import React from 'react';
 
 interface StaticButtonProps {
   onClick: () => void;
+  theme: 'gold' | 'ice';
   children: React.ReactNode;
 }
 
-const StaticButton: React.FC<StaticButtonProps> = ({ onClick, children }) => {
+const StaticButton: React.FC<StaticButtonProps> = ({ onClick, theme, children }) => {
+  const colorClasses = theme === 'gold' 
+    ? 'text-amber-500 bg-amber-950/20 border-amber-900/50 shadow-amber-950 hover:text-amber-400' 
+    : 'text-cyan-500 bg-sky-950/20 border-sky-900/50 shadow-sky-950 hover:text-cyan-400';
+
   return (
     <button
       onClick={onClick}
-      className="px-10 py-5 font-jakarta font-bold text-sky-700 bg-sky-950/20 border-2 border-sky-900/50 rounded-2xl shadow-[0_6px_0_0_#0c4a6e] hover:bg-sky-900/40 hover:text-sky-400 focus:outline-none transform active:translate-y-1 active:shadow-none transition-all duration-150 backdrop-blur-sm tracking-widest uppercase text-sm"
+      className={`px-10 py-5 font-jakarta font-bold border-2 rounded-2xl shadow-[0_6px_0_0_var(--tw-shadow-color)] focus:outline-none transform active:translate-y-1 active:shadow-none transition-all duration-150 backdrop-blur-sm tracking-widest uppercase text-sm ${colorClasses}`}
     >
       {children}
     </button>
