@@ -5,8 +5,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>2026: The Frozen New Year</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&family=Unbounded:wght@400;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-  <script type="importmap">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              syne: ['Syne', 'sans-serif'],
+              outfit: ['Outfit', 'sans-serif'],
+              jakarta: ['Plus Jakarta Sans', 'sans-serif'],
+              unbounded: ['Unbounded', 'cursive'],
+            },
+          },
+        },
+      }
+    </script>
+    <script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.0",
@@ -46,6 +63,7 @@
         background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
         margin: 0;
         overflow: hidden;
+        font-family: 'Plus Jakarta Sans', sans-serif;
       }
     </style>
 </head>

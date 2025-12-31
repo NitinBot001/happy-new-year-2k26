@@ -26,9 +26,9 @@ const MovingButton: React.FC<MovingButtonProps> = ({ children, isHacked, onClick
     setPosition({ top: clampedY, left: clampedX });
   }, [isHacked]);
 
-  const baseClasses = `px-10 py-4 font-black text-white bg-sky-500 rounded-2xl shadow-[0_4px_0_0_#0284c7] focus:outline-none transform transition-all duration-300 ease-in-out border border-sky-300/30`;
+  const baseClasses = `px-12 py-5 font-syne font-extrabold text-white bg-sky-500 rounded-2xl shadow-[0_6px_0_0_#0284c7] focus:outline-none transform transition-all duration-300 ease-in-out border border-sky-300/30 tracking-[0.15em] uppercase text-sm`;
   const finalClasses = `${baseClasses} ${isHacked 
-    ? 'animate-pulse ring-4 ring-cyan-400 cursor-pointer hover:bg-cyan-400 hover:scale-110 shadow-[0_0_20px_rgba(34,211,238,0.6)]' 
+    ? 'animate-pulse ring-4 ring-cyan-400 cursor-pointer hover:bg-cyan-400 hover:scale-110 shadow-[0_0_30px_rgba(34,211,238,0.7)]' 
     : 'hover:bg-sky-400'}`;
 
   const eventHandlers = isHacked ? {} : {

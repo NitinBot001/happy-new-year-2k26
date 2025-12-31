@@ -48,7 +48,7 @@ const celebrationSets = [
       { value: "12", label: "MONTHS OF JOY" },
       { value: "4", label: "SEASONS OF MAGIC" }
     ],
-    bottom: "Let’s make this legendary ❆"
+    bottom: "Let’s make this unforgettable ❆"
   },
   {
     top: "Wishing you days filled with clarity, the strength of a blizzard, and reasons to glow.",
@@ -164,12 +164,12 @@ const App: React.FC = () => {
   const renderContent = () => {
     if (isYesClicked) {
       return (
-        <div className="space-y-8 max-w-4xl mx-auto px-4">
-          <h1 className="text-5xl md:text-8xl font-black text-cyan-300 drop-shadow-[0_0_15px_rgba(103,232,249,0.8)] animate-bounce mb-8 uppercase tracking-tighter">
+        <div className="space-y-12 max-w-5xl mx-auto px-4">
+          <h1 className="text-6xl md:text-9xl font-syne font-black text-cyan-300 drop-shadow-[0_0_20px_rgba(103,232,249,0.9)] animate-bounce mb-8 uppercase tracking-tighter">
             COOL 2026! ❄️
           </h1>
           
-          <p className="text-xl md:text-2xl text-sky-100 font-light leading-relaxed max-w-2xl mx-auto italic">
+          <p className="text-xl md:text-3xl text-sky-100 font-outfit font-light leading-relaxed max-w-3xl mx-auto italic">
             "{selectedCelebration.top}"
           </p>
 
@@ -177,23 +177,24 @@ const App: React.FC = () => {
             {selectedCelebration.boxes.map((box, idx) => (
               <div 
                 key={idx} 
-                className="flex-1 p-6 bg-sky-950/40 border border-sky-400/40 rounded-3xl backdrop-blur-xl shadow-[0_0_30px_rgba(56,189,248,0.2)] hover:border-sky-300 transition-all duration-500 group flex flex-col justify-center"
+                className="flex-1 p-8 bg-sky-950/40 border border-sky-400/30 rounded-[2rem] backdrop-blur-2xl shadow-[0_0_40px_rgba(56,189,248,0.15)] hover:border-sky-300 hover:shadow-[0_0_50px_rgba(56,189,248,0.3)] transition-all duration-500 group flex flex-col justify-center items-center text-center"
               >
-                <span className="block text-white text-4xl md:text-5xl font-black mb-2 tracking-tighter group-hover:scale-110 transition-transform">
+                <span className="block text-white text-5xl md:text-6xl font-unbounded font-black mb-4 tracking-tighter group-hover:scale-110 transition-transform duration-500">
                   {box.value}
                 </span>
-                <span className="text-xs md:text-sm text-sky-300 font-bold uppercase tracking-widest leading-tight">
+                <span className="text-xs md:text-sm text-sky-300 font-jakarta font-bold uppercase tracking-[0.2em] leading-tight">
                   {box.label}
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="space-y-4">
-            <p className="text-lg md:text-xl text-sky-300 font-semibold tracking-wide">
+          <div className="space-y-6">
+            <p className="text-xl md:text-2xl text-sky-300 font-outfit font-semibold tracking-wide">
               {selectedCelebration.bottom}
             </p>
-            <div className="text-sky-700 text-sm mt-8 font-bold">
+            <div className="text-sky-800 font-jakarta font-bold text-sm mt-8 tracking-widest uppercase flex items-center justify-center gap-2">
+              <span className="w-2 h-2 bg-sky-400 rounded-full animate-pulse"></span>
               Arctic Legend: <span className="text-sky-300 underline decoration-sky-300/50">ACTIVE</span>
             </div>
           </div>
@@ -203,17 +204,17 @@ const App: React.FC = () => {
     
     if (isNoClicked) {
       return (
-        <div className="space-y-6">
-          <h1 className="text-4xl md:text-6xl font-bold text-sky-800">
+        <div className="space-y-8">
+          <h1 className="text-5xl md:text-7xl font-syne font-bold text-sky-800 tracking-tight">
             {selectedJoke.title}
           </h1>
-          <p className="text-lg md:text-2xl text-sky-200 font-light">
+          <p className="text-xl md:text-3xl text-sky-200 font-outfit font-light max-w-2xl mx-auto">
             {selectedJoke.message}
           </p>
-          <div className="pt-8">
+          <div className="pt-12">
             <button 
               onClick={() => { setShowContent(false); setTimeout(() => { setIsNoClicked(false); setShowContent(true); }, 500); }}
-              className="text-sky-500 hover:text-sky-300 underline text-sm transition-colors font-medium"
+              className="font-jakarta text-sky-500 hover:text-sky-300 underline text-lg transition-colors font-medium decoration-sky-500/30 underline-offset-8"
             >
               Wait, the ice is melting... I'm ready!
             </button>
@@ -223,32 +224,32 @@ const App: React.FC = () => {
     }
 
     return (
-       <div className="space-y-12">
-          <h1 className="text-4xl md:text-7xl font-black text-white tracking-tight leading-tight">
-            Ready to <span className="text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">CHILL</span> in 2026? <br/>
-            Make it your <span className="italic underline decoration-cyan-500">coolest</span> year yet.
+       <div className="space-y-16">
+          <h1 className="text-5xl md:text-8xl font-syne font-black text-white tracking-tight leading-[1.1]">
+            Ready to <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.6)]">CHILL</span> in 2026? <br/>
+            Make it your <span className="italic underline decoration-cyan-500/50 decoration-4 underline-offset-8">coolest</span> year yet.
           </h1>
           
           <div 
             onClick={handleStarClick}
-            className={`relative inline-block text-7xl md:text-9xl cursor-pointer select-none transition-all duration-300 ${isShaking ? 'scale-125 rotate-12' : 'hover:scale-110'} ${isHacked ? 'animate-none' : 'animate-pulse'}`}
+            className={`relative inline-block text-8xl md:text-[12rem] cursor-pointer select-none transition-all duration-500 ${isShaking ? 'scale-125 rotate-12' : 'hover:scale-105'} ${isHacked ? 'animate-none' : 'animate-pulse'}`}
           >
-            <span className="drop-shadow-[0_0_20px_rgba(34,211,238,0.8)] filter brightness-125">
+            <span className="drop-shadow-[0_0_30px_rgba(34,211,238,0.9)] filter brightness-125">
                 {isHacked ? '❆' : '❄'}
             </span>
             {!isHacked && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-black text-sky-950 pointer-events-none">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-unbounded font-black text-sky-950 pointer-events-none opacity-80">
                 26
               </div>
             )}
             {!isHacked && starClicks > 0 && (
-              <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-sm font-bold text-sky-400 whitespace-nowrap animate-bounce">
+              <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-sm font-jakarta font-bold text-sky-400 whitespace-nowrap animate-bounce tracking-widest uppercase">
                 Tap {5 - starClicks}x to freeze the flow
               </div>
             )}
           </div>
 
-          <div className="flex justify-center items-center gap-6">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-8">
             <MovingButton isHacked={isHacked} onClick={handleYesClick}>
               ABSOLUTELY!
             </MovingButton>
@@ -257,7 +258,7 @@ const App: React.FC = () => {
             </StaticButton>
           </div>
           
-          <p className="text-sky-800 font-bold text-sm tracking-widest uppercase">
+          <p className="text-sky-800 font-jakarta font-bold text-sm tracking-[0.3em] uppercase">
             {isHacked ? "The arctic gate is open." : "Catch the breeze of ambition."}
           </p>
         </div>
@@ -274,17 +275,17 @@ const App: React.FC = () => {
 
         {/* Hint Button */}
         {!isHacked && !isYesClicked && !isNoClicked && (
-          <div className="fixed bottom-6 left-6 flex items-center gap-3 group z-20">
+          <div className="fixed bottom-8 left-8 flex items-center gap-4 group z-20">
             <button
               onClick={() => setShowHint(!showHint)}
-              className="w-10 h-10 rounded-full bg-sky-950/80 border border-sky-400/30 flex items-center justify-center text-sky-300 hover:bg-sky-900 hover:border-sky-300 transition-all duration-300 shadow-xl shadow-cyan-500/10 backdrop-blur-sm"
+              className="w-12 h-12 rounded-2xl bg-sky-950/80 border border-sky-400/40 flex items-center justify-center text-sky-300 hover:bg-sky-900 hover:border-sky-300 transition-all duration-300 shadow-2xl shadow-cyan-500/10 backdrop-blur-md"
               aria-label="Hint"
             >
-              <span className="font-serif italic font-bold text-lg">i</span>
+              <span className="font-syne font-bold text-xl">?</span>
             </button>
             <div className={`transition-all duration-500 overflow-hidden ${showHint ? 'max-w-xs opacity-100' : 'max-w-0 opacity-0'} whitespace-nowrap`}>
-              <div className="bg-sky-950/90 border border-sky-400/20 px-4 py-2 rounded-xl text-xs text-sky-200 backdrop-blur-md shadow-2xl">
-                Psst... Tap the <span className="text-sky-300 font-bold underline">Ice Snowflake</span> 5 times to thaw the luck!
+              <div className="bg-sky-950/90 border border-sky-400/20 px-6 py-3 rounded-2xl text-sm font-jakarta text-sky-200 backdrop-blur-xl shadow-2xl tracking-wide">
+                Psst... Tap the <span className="text-sky-300 font-bold underline decoration-sky-300/30">Ice Snowflake</span> 5 times!
               </div>
             </div>
           </div>
