@@ -408,7 +408,7 @@ const App: React.FC = () => {
                   onClick={() => { initAudio(); playSound('click'); }}
                   className={`inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/30 transition-all group backdrop-blur-md`}
                 >
-                  <span className="text-xl sm:text-2xl">📸</span>
+                  <span className="text-xl sm:text-2xl"></span>
                   <div className="text-left">
                     <p className="text-[8px] sm:text-[10px] text-white/50 font-bold uppercase tracking-widest leading-none">Follow me on</p>
                     <p className={`text-base sm:text-lg font-syne font-black tracking-tight text-${activeContent.primary} group-hover:scale-105 transition-transform`}>
